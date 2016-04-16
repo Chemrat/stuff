@@ -34,7 +34,7 @@ def purgeBoard(board)
 		end
 	end
 
-	if board.closed then
+	if board.closed? then
 		puts "This board is closed, mangling it's name"
 		board.name = SecureRandom.hex
 		board.save
@@ -63,10 +63,10 @@ Trello.configure do |config|
 	config.member_token = ARGV[1]
 end
 
-if ARGV[2] != nil then
-	purgeBoard(Trello::Board.find(ARGV[2]))
-elsif ARGV[2] == "all" then
+if ARGV[2] == "all" then
 	purgeAllBoards
+elsif ARGV[2] != nil then
+	purgeBoard(Trello::Board.find(ARGV[2]))
 else
 	listAllBoards
 end
