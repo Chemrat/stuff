@@ -1,0 +1,63 @@
+#library "saveload"
+#include "zcommon.acs"
+
+#define PERSISTENT_INVENTORY_LEN 16
+int persistentInventory[PERSISTENT_INVENTORY_LEN] =
+{
+"CurrentMaxHealth",
+"CurrentMaxArmor",
+"SpikedGauntlets",
+"Level",
+"MP",
+
+"Rolling",
+"Strength",
+"Agility",
+"Constitution",
+"Willpower",
+
+"Wisdom",
+"Intellect",
+"LvlUp",
+"Mana1",
+"Mana2",
+
+"PoisonBlast"
+};
+
+script "onLoad" ENTER
+{
+	int playerTid = 1000 + PlayerNumber();
+	Thing_ChangeTID(0, playerTid);
+	
+	str accountName = StrParam(n:PlayerNumber());
+	str namespace = strparam(s:accountName, s:"_inventory");
+	
+	print(s:"Player ", s:accountName, s:" has joined the fray");
+	
+	print(s:"Restoring your inventory...", s:namespace);
+    for (int i = 0; i < PERSISTENT_INVENTORY_LEN; i++) {
+		if (GetDBEntry(namespace, persistentInventory[i]) > 0) {
+			TakeActorInventory(playerTid, persistentInventory[i], 65535);
+			GiveActorInventory(playerTid, persistentInventory[i], GetDBEntry(namespace, persistentInventory[i]));
+		}
+		print(s:persistentInventory[i], s:" amount:", d:GetDBEntry(namespace, persistentInventory[i]));
+    }
+	print(s:"Inventory restored!");
+}
+
+script "saveStats" (void) net
+{
+	str accountName = StrParam(n:PlayerNumber());
+	str namespace = strparam(s:accountName, s:"_inventory");
+	
+	print(s:"Saving your inventory...");
+	BeginDBTransaction();
+    for (int i = 0; i < PERSISTENT_INVENTORY_LEN; i++) {
+        SetDBEntry(namespace, persistentInventory[i], CheckInventory(persistentInventory[i]));
+		print(s:persistentInventory[i], s:" amount:", d:CheckInventory(persistentInventory[i]));
+    }
+	EndDBTransaction();
+	print(s:"Inventory saved!");
+	ActivatorSound("switches/normbutn", 127);
+}

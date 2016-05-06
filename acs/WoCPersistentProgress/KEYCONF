@@ -1,0 +1,4 @@
+addkeysection "Stuff" dfwk_keysection
+addmenukey "Save Progress" dfwk_savegame
+alias dfwk_savegame "pukename saveStats"
+defaultbind K dfwk_savegame
